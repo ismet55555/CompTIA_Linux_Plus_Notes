@@ -1,4 +1,6 @@
-# CompTIA_Linux-_Certification_Prep
+<p align="center"><img width="150" alt="portfolio_view" src="logo.png"></p>
+
+<h1 align="center">CompTIA Linux+ Certificate Notes</h1>
 
 ## Intro
 
