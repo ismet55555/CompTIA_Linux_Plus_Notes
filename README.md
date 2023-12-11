@@ -726,8 +726,8 @@
 - Only edited by `root` user
 - Each line in this file has 6 fields:
     - ```
-    <file system> <mount point> <type> <options> <dump> <pass>
-    ```
+      <file system> <mount point> <type> <options> <dump> <pass>
+      ```
     - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
     - Mount Point - Where to mount file system (ie. `/home`)
     - File system type - Type of file system (ie. `ext4`, `swap`)
