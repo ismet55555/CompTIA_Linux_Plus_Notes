@@ -313,7 +313,7 @@
 - Allow users to customize their profile and settings
 - User files eventually are within the user's home directory (ie. `/home/<USER>/`)
 - Files are unique to each users
-- Files starting with `.` are hidden files
+- Files starting with `.` are considered hidden files
 
 - `.bashrc`
 
@@ -331,7 +331,7 @@
   - Effectively part of `/etc/skel`
   - System-wide settings
 
-- '/etc/skel/' (directory)
+- `/etc/skel/` *(directory)*
 
   - When new user is created, content of this directory is coppies into
     user's default home directory
@@ -343,7 +343,7 @@
     certain settings to user accounts
   - Only run at login
 
-- `/etc/profile.d` (directory)
+- `/etc/profile.d` *(directory)*
 
   - Storage location for scripts that admins may use to set
     additional system-wide variables
@@ -541,26 +541,32 @@
   - Symoblic: `chmod +t {directory name}`
   - Absolute: `chmod 1### {directory name}`
     
-- **Immutable Flag**
+- **Immutable Flag (`+i`)**
   - Attribute of a file or directory that prevents it from being modified
     (even by the root user)
   - Useful for fiels that are highly sensitive and important
+  - File:   
+    - Set: `chattr +i /path/to/file`
+    - Unset: `chattr -i /path/to/file` 
+  - Directory:
+    - Set: `chattr +i -R /path/to/directory`
+    - Unset: `chattr -i -R /path/to/directory`
 
-- `lsattr`
-  - List the attributes of a file or directory
-  - `lsattr [options] {file or directory name}`
-  - `-R` - Recuirsively list attributes of items
-  - `-a` - List all files
-  - `-d` - List directories
-  - `-v` - List file's version number
+  - `lsattr`
+    - List the attributes of a file or directory
+    - `lsattr [options] {file or directory name}`
+    - `-R` - Recuirsively list attributes of items
+    - `-a` - List all files
+    - `-d` - List directories
+    - `-v` - List file's version number
 
-- `chattr`
-  - Used to change the attributes of a file or directory
-  - `chattr [-R] [-v {version}] [+-{attributes}] {file or directory name}`
-  - `-R` - Recursively change attributes
-  - `-v` - Set file version number
-  - `+I` - Mark file as read-only and immutable
-  - `-I` - Remove read-only
+  - `chattr`
+    - Used to change the attributes of a file or directory
+    - `chattr [-R] [-v {version}] [+-{attributes}] {file or directory name}`
+    - `-R` - Recursively change attributes
+    - `-v` - Set file version number
+    - `+I` - Mark file as read-only and immutable
+    - `-I` - Remove read-only
 
 ## Access Control Lists (ACLs)
 
@@ -713,20 +719,21 @@
             2. `mkfs {file system type} [options] {device name}`
 
 ## `/etc/fstab` file
-    - Stores info about storage devices and partitions and where and how they should be mounted
-    - Config file that controls how file systems are treated when they are introduced to a system
-    - Read by system during boot up process
-    - Only edited by `root` user
-    - Each line in this file has 6 fields:
-        - ```
-        <file system> <mount point> <type> <options> <dump> <pass>
-        ```
-        - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
-        - Mount Point - Where to mount file system (ie. `/home`)
-        - File system type - Type of file system (ie. `ext4`, `swap`)
-        - Options - Comma-seperated options that will be activated when the file system is mounted
-        - Dump - If the dump utility should back up file system (0 or 1)
-        - Pass - fsck options. Order in whic `fsck` utility should check file system
+
+- Stores info about storage devices and partitions and where and how they should be mounted
+- Config file that controls how file systems are treated when they are introduced to a system
+- Read by system during boot up process
+- Only edited by `root` user
+- Each line in this file has 6 fields:
+    - ```
+    <file system> <mount point> <type> <options> <dump> <pass>
+    ```
+    - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
+    - Mount Point - Where to mount file system (ie. `/home`)
+    - File system type - Type of file system (ie. `ext4`, `swap`)
+    - Options - Comma-seperated options that will be activated when the file system is mounted
+    - Dump - If the dump utility should back up file system (0 or 1)
+    - Pass - fsck options. Order in whic `fsck` utility should check file system
 
 ## `etc/crypttab` file
 
@@ -788,4 +795,6 @@
     - Example usage:
         - Get 5 random characters: `head -c 5 /dev/urandom`
         - Generate secure token: `dd if=/dev/urandom  count=1 bs=128 | sha512sum`
+
+
 
