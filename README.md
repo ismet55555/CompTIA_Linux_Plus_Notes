@@ -10,31 +10,34 @@
 - Most questions don't need specific syntax but reaonsing (what tool? why the tool)
 - Official Overview: <https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0)>
 
-## Install Linux
+## Preparation
+
+TODO
+
+## Linux Installation
 
 - Different distribution have different requirements
 - Mind intended system function
 - Plan appropriate partitioning strategies
-- Virtual memory partition -> Swap space [2x RAM]
-- At least 1 file system (root)
-- Multiple file system ensures recovery if one file system messes up
+- Virtual/Swap memory partition -> Swap space [2x RAM]
+- Linux must at least 1 file system (ie. root: `/`)
+- Multiple file system ensures recovery/backup if one file system messes up
 - Hardware
   - Not all hardware work on all linux distributions
-  - See Hardware compatibility list (HCL)
-  - Database that stores hardware devices that distro supports
+  - Hardware Compatibility List (HCL) - Database that stores hardware devices that distro supports
   - Storage drive
     - Check how many devices can be installed
     - Technology interface
     - Controller used
     - Capacity
   - CPU
-    - server desktop market
-    - clock rate
+    - Server desktop market
+    - Clock rate
     - Cache size
-    - hyper-threading support
+    - Hyper-threading support
   - Memory
-    - How much RAM is installed
-    - DDR SDRAM generation
+    - How much physical RAM is installed
+    - DDR SDRAM Generation
   - Network Card
     - Maximum bandwidth
     - Network technology supported
@@ -52,21 +55,23 @@
     - Graphics card
 - Boot
   - Removable Media
-  - Install ISO on local drive (also with virtual machine)
+  - Install ISO on local drive (also with virtual machines)
   - PXE and NFS
     - Fileserver on network
-    - When booted up, grabs installation files from insatllation file server
+    - When booted up, will grabs installation files from insatllation file server
+    - Great for automatic linux installation and setup
 - Installation of Linux
-  - Each distro have installation program
+  - Each distro has a installation program
 
-### Using VirtualBox to Install CentOS Linux
+### Install Linux in Virtual Machine with VirtualBox
 
 - Download and install Oracle VirtualBox for your computer architecture
-- CentOS7
+    - Link: TODO
+- TODO
 
 ## Linux Design Pilosophy
 
-- Open source - Freely download, modify, and redistribute
+- **Open Source** - Freely download, modify, and redistribute
   - GNU General Public License
   - Apache
   - MIT
@@ -85,10 +90,10 @@
 
 ## Command Line Interface (CLI)
 
-- User -> Shell -> Kernel
-- sh - Bourne shell (Original Unix)
-- bash - Bourne-again shell
-- Command, Options, Arguments
+- Instruction flow: User -> Shell -> Linux Kernel
+- **sh** - Bourne shell (Original Unix)
+- **bash** - Bourne-again shell
+- Typical input: Command, Options, Arguments
 - Basic commands
   - `ls` - list items
   - `cd` - change directory
@@ -99,7 +104,7 @@
   - `less` - view contents of file on one screen
   - ....
 
-## Help
+### Getting Help
 
 - `man` pages - details to CLI commands
 - `apropos` - search the name of section of all man pages
@@ -145,10 +150,8 @@
 
   - `su`
     - Switch user creds
-    - `su some-user`
-  - `su -root`
-    - switches to creds to root user
-    - Could use `sudo su`
+    - `su - someuser`
+  - `su -root` / `sudo su` - Switches to creds to root user
   - `sudo`
     - Enables server admin to delegate commands to users without full privelages
     - User of this command must be in `/etc/sudoers` file -> `visudo` editor needed to edit
@@ -166,8 +169,9 @@
 
 - "Wheel" group
 
-  - Members exercise root priileges with elss potential for damaging the system
+  - Members exercise root priileges with less potential for damaging the system
   - Can use `sudo` command to avoid signing in as root user
+  - TODO: More explanation
 
 - Polkit (PolicyKit)
 
@@ -178,7 +182,9 @@
   - Used in modern Linux desktop environments (GNOME, KDE)
   - `pkexec` - Execute command with elevated privileges
     - `pkexec mkdir /Jason`
-  - `sudo` may be easier to use instead of `pkexec`
+  - **NOTE**: `sudo` may be easier to use instead of `pkexec`
+  - Examples:
+    - TODO
 
 ## Users: Create, Modify, and Delete
 
@@ -193,27 +199,30 @@
     - `-D` - View default configurations for new user (dry run)
   - `usermod`
     - Modify user account
+    - Examples:
+      - Change username: `sudo usermod --login my_new_username my_current_username`
+      - Change user id: `sudo usermod --uid 7 ismet`
   - `userdel`
     - Delete a user account
-    - `sudo userdel <USERNAME>`
-    - NOTE: Doesn't automatically delete the user directory
-    - `sudo userdel -r <USERNAME>` (deletes user home directory as well)
+    - **NOTE:** Doesn't automatically delete the user directory
+    - Examples:
+      - Delete user: `sudo userdel <USERNAME>`
+      - Delete user with their home directory: `sudo userdel -r <USERNAME>`
 
 - `passwd`
-  - Used by _root_ user to set or reset password for any user
-  - User can do this themselves
+  - Used by `root` user to set or reset password for any user
+  - A user can do this themselves
   - Set password for user
     - `sudo passwd <USERNAME>`
   - Lock/unlock user password
     - `sudo passwd --lock <USERNAME>`
     - `sudo passwd --unlock <USERNAME>`
-- `/etc/passwd`
 
+- `/etc/passwd` file
   - File storing user account info
   - Does not contain actual passwords
 
-- `/etc/shadow`
-
+- `/etc/shadow` file
   - Modern storage location for hashed passwords
   - Has additional account info
     - Username
@@ -227,15 +236,20 @@
   - Only root has access to this
 
 - `chage`
-
-  - Information about user password (ie. exprirations)
-    - `sudo chage -l <USERNAME>`
+  - Change user account and password expiry information
   - Change expiration of password
     - `sudo chage -E 2026/12/31` (<YEAR>/<MONTH>/<DAY>)
+  - Information about user password (ie. exprirations)
+    - `sudo chage -l <USERNAME>`
 
-- Configured according to options set in the `/etc/login.defs` file
-- The user's home directory is in `/home/<ACCOUNT NAME>` is populated using
-  files from the `/etc/skel` directory by default
+- `/etc/login.defs` file
+  - Required file that defines the site-specific configuration for the shadow password suite.
+  - Stores configurations for users accounts and groups
+  - Configurations include:
+    - Password aging controls
+    - Min and max value for UID selection
+    - Default umask
+    - Encryption method used to encrypt passwords
 
 ## Groups: Create, Modify, and Delete
 
@@ -261,16 +275,19 @@
     - `gropudel [options] <GROUP NAME>`
 
 - `/etc/group`
-
   - Group information for all groups
   - Each group has four pieces of info
-  - <NAME>:<PASSWORD>:<ID>:<LIST>
+  - Example entry: `adm:x:4:syslog,ismet`
+  - `<NAME>:<PASSWORD>:<ID>:<LIST>`
     - NAME - User-friendly name of group
-    - PASSWORD - Required to enter this group
-    - LIST - Members part of this group (new group has no members)
+    - PASSWORD - Required to enter this group (`x` means password stored in `/etc/gshadow`)
+    - ID - Unique ID of the group
+    - LIST - User accounts that are members of group (new group has no members)
 
 - Adding a user account to a group
-  - `sudo usermod -aG <GROUP> <USER>`
+  - `sudo usermod -aG <GROUPS> <USER>`
+  - `-a` or `--append` - Append user to group
+  - `-G` or `--groups` - List of groups (comma seperated)
 
 ## Query Users and Groups
 
@@ -337,7 +354,7 @@
 
   - When new user is created, content of this directory is coppies into
     user's default home directory
-  - Any files added after user creation to /etc/skel will not be copied over
+  - Any files added after user creation to `/etc/skel` will not be copied over
 
 - `/etc/profile`
 
@@ -356,6 +373,8 @@
   - System-wide configuration changes specific to bash settings
   - Bash settings for command-line environment
   - May also be `/etc/bash.bashrc`
+
+
 
 # Permissions and Ownership
 
@@ -377,6 +396,7 @@
     drwxrwxr-x 2 ismet ismet    4096  Nov 20 20:19 .
     drwxrwxr-x 3 ismet ismet    4096  Nov 13 09:46 ..
     -rw-rw-r-- 1 ismet learners 11324 Nov 20 20:25 NOTES.md
+    -rw-rw-r-- 1 root  hackers  1135  Nov 21 17:25 important.blah
     ```
 
   - Column 1 - Permission attribute string (ie. `-rw-rw-r--`)
@@ -387,7 +407,7 @@
   - Column 4 - Group granted access by admin (ie. `hackers`)
   - Column 5 - Size in bytes
   - Column 6 - Datetime file was created or modified
-  - Column 7 - Name
+  - Column 7 - Name of file/directory
 
 - **Permission Attributes**
 
@@ -418,15 +438,15 @@
     1. Type of file
        - `d` - directory
        - `-` - file
-    2. Owner Permission - read
-    3. Owner Permission - write
-    4. Owner Permission - execute
-    5. Group Permission - read
-    6. Group Permission - write
-    7. Group Permission - execute
-    8. Other Permission - read
-    9. Other Permission - write
-    10. Other Permission - execute
+    2. Owner Permission - read (r)
+    3. Owner Permission - write (w)
+    4. Owner Permission - execute (x)
+    5. Group Permission - read (r)
+    6. Group Permission - write (w)
+    7. Group Permission - execute (x)
+    8. Other Permission - read (r)
+    9. Other Permission - write (w)
+    10. Other Permission - execute (x)
     11. Access method for the file
         - `.` - SELinux security context
         - `+` - Alternative access methods
@@ -439,15 +459,17 @@
   - `-f` - Hide error messages
   - `-v` - Display diagnostic entry
   - `-R` - Recursively modify permissions
-  - Supports two different modes: **Symbolic** and **Absolute**
+  - Supports two different modes:
+    1. **Symbolic**
+    2. **Absolute**
   - **chmod: Symbolic Mode**
-    - `chmod {context} {operators} {attributes} {file/dir names}`
+    - `chmod {context}{operators}{attributes} {file/dir names}`
     - Example:
       - `chmod u+rw my_dir` - Give user rights to read and write
       - `chmod g-x my_file` - Remove exeuteable rights from group
-    - Context - `u/g/o/a` - user/group/other/all three (who)
+    - Context - `u/g/o/a` - user/group/other/all ("who is affected")
     - Operators - `+/-/=` - grant/deny/exactly assign
-    - Attributes - `r/w/x` - read/write/execute (what)
+    - Attributes - `r/w/x` - read/write/execute ("what can they do")
   - **chomd: Absolute Mode**
     - `chmod {number} {file/dir names}`
     - Uses octal (base-8) numbers to specify permissions
@@ -460,6 +482,9 @@
       - `6` -> `42` -> read, write
     - Complete final permission is a three-digit number that corresponds to
       the owner, group, and others (ie, `774`)
+        - First digit: user
+        - Second digit: group
+        - Third digit: other
     - Example: `752`
       - `7` - user - read, write, execute
       - `5` - group - read, execute
