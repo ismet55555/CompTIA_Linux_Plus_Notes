@@ -23,8 +23,6 @@
   - [Storage Device Naming](#storage-device-naming)
   - [Special character devices in `/dev`](#special-character-devices-in-dev)
 
-
-
 ## Intro
 
 - Multiple-choice and performance-based questions
@@ -91,7 +89,7 @@
 ### Install Linux in Virtual Machine with VirtualBox
 
 - Download and install Oracle VirtualBox for your computer architecture
-    - Link: TODO
+  - Link: TODO
 - TODO
 
 ## Linux Design Pilosophy
@@ -312,7 +310,7 @@
 - Adding a user account to a group
   - `sudo usermod -aG <GROUPS> <USER>`
   - `-a` or `--append` - Append user to group
-  - `-G` or `--groups` - List of groups (comma seperated)
+  - `-G` or `--groups` - List of groups (comma separated)
 
 ## Query Users and Groups
 
@@ -371,7 +369,7 @@
 
   - Provides the shell configuration for the initial login environment
   - Settings for all users' interactive shells
-  - This file is read with first login _prior_ of using the `.bashrc`
+  - This file is read with first login *prior* of using the `.bashrc`
   - Effectively part of `/etc/skel`
   - System-wide settings
 
@@ -398,8 +396,6 @@
   - System-wide configuration changes specific to bash settings
   - Bash settings for command-line environment
   - May also be `/etc/bash.bashrc`
-
-
 
 # Permissions and Ownership
 
@@ -507,9 +503,9 @@
       - `6` -> `42` -> read, write
     - Complete final permission is a three-digit number that corresponds to
       the owner, group, and others (ie, `774`)
-        - First digit: user
-        - Second digit: group
-        - Third digit: other
+      - First digit: user
+      - Second digit: group
+      - Third digit: other
     - Example: `752`
       - `7` - user - read, write, execute
       - `5` - group - read, execute
@@ -532,8 +528,8 @@
   - `umask -S` - Display symbolic value
   - `umask [mask]` - Setting umask for file and dir
   - Difference between `chmod` and `umask`
-    - `umask` changes _default_ permissions for _newly_ created files and directories
-    - `chmod` sets permissions on files and directories that _already exist_
+    - `umask` changes *default* permissions for *newly* created files and directories
+    - `chmod` sets permissions on files and directories that *already exist*
   - Examples:
     - `umask a+r` - Take away read for all
     - `umask 020` - Take away write from group
@@ -556,7 +552,7 @@
     - `chown {username} {file/directory name}` - Change user owner
     - `chown :{group name} {file/directory name}` - change group only
     - `chown {username}: {file/directory name}` - Change user owner and assign to user owner login group
-    - `-R` - Recuirsively change ownership thoughout directory structure
+    - `-R` - Recuirsively change ownership throughout directory structure
 
   - `chgrp`
     - Change group ownership of a file or directory
@@ -591,16 +587,16 @@
   - Special permission bit that protects files in a directory
   - Must be applied to the directory
   - Users may be able to write and execute, but can't delete items
-  - Symoblic: `chmod +t {directory name}`
+  - Symbolic: `chmod +t {directory name}`
   - Absolute: `chmod 1### {directory name}`
-    
+
 - **Immutable Flag (`+i`)**
   - Attribute of a file or directory that prevents it from being modified
     (even by the root user)
   - Useful for fiels that are highly sensitive and important
-  - File:   
+  - File:
     - Set: `chattr +i /path/to/file`
-    - Unset: `chattr -i /path/to/file` 
+    - Unset: `chattr -i /path/to/file`
   - Directory:
     - Set: `chattr +i -R /path/to/directory`
     - Unset: `chattr -i -R /path/to/directory`
@@ -624,7 +620,7 @@
 ## Access Control Lists (ACLs)
 
 - Enable a more granular level of control than simply using file permissions
-- Can set access to multple groups on one directory
+- Can set access to multiple groups on one directory
 
 - `getfacl`
   - Useful when retrieveing the ACLs of files and directories
@@ -636,7 +632,7 @@
   - `-r` - Recuirsively set ACL options
   - `-S` - Set ACL
   - `-m` - Modify existing ACL
-  - `-x` - Remove entries from exsisting ACL
+  - `-x` - Remove entries from existing ACL
   - `-b` - Remove all entries except standard permissions
   - acl_spec
     - Users: u:{username}: {permissions}
@@ -652,11 +648,11 @@
   3. Test the theory to determine the cause
   4. Establish an action plan
   5. Implement the solution
-  6. Verify full system funcitonality
-  7. Documment findings, actions, and outcomes
+  6. Verify full system functionality
+  7. Document findings, actions, and outcomes
 
 - `ls -la` - Check permissions and ownership
-- `groups {username}` - Check user's group memebership
+- `groups {username}` - Check user's group membership
 - `usermod` - Change group membership
 - `lid`, `liduser-lid`
   - Retrieve all members of a group
@@ -670,106 +666,114 @@
   3. Verify special permissions are set properly (ie. sticky bits, immutable flags)
   4. Ensure proper owner and owning group set
 
-
 # Storage
 
 ## File Systems
 
 - Types of storage devices
-    - Block Devices - Read/Write in blocks of data (e.g., hard drives, solid-state devices)
-    - Character Devices - Read/Write character streams of data (e.g., keyboards, mice, serial ports)
+  - Block Devices - Read/Write in blocks of data (e.g., hard drives, solid-state devices)
+  - Character Devices - Read/Write character streams of data (e.g., keyboards, mice, serial ports)
 - File System
-    - Data structure used by an operating system to store, retrieve, organize, and manage files
+  - Data structure used by an operating system to store, retrieve, organize, and manage files
       and directories on storage devices
-    - Supported Linux file systems
-        - `FAT` - File allocation Table - Older file system, used for compatibility
-        - `ext2` - Used to be native linux file system on older releases
-        - `ext3` - Faster in recovering data and better ensures data integrity of abrupt system shutdowns
-        - `ext4` - Supports volumes up to 1 exabyte and files up to 16 terabytes in size
-        - `XFS` - 64-bit, high-performance journaling file system that provides fast recovery and can handle large files efficiently
-        - `BTRFS` - Modern filesystem. Supports volumes up to 16 exabytes in size and up to 18 quintillion files on each volume
-    - File system protocols
-        - Server Message Block (SMB)
-            - Allows users to have access to files over the local network
-            - Server-client architecture
-            - Better for mixture of windows and linux filesystems
-            - Microsoft Windows supports SMB by default
-        - Common Internet File system (CIFS)
-            - Some linux distribution refer to SMB as CIFS
-            - Version of SMB, rarely in use today, replaced by later versions
-        - Network File System (NFS)
-            - Better for all linux networks and filesystems
-            - Not supported by Microsoft Windows by default
-    - Index Node (Inode)
-        - Stores metadata about a file or directory on a file system
-        - Can included time-based values (created, modified, etc), permisssion and ownership info,
-    - Virtual File System (VFS)
-        - Filesystem created as interface between kernel and real file system
-        - Translates real file system details to kernel
-        - Can mount many file systems on OS, and will apear uniform to system and applications
-        - File system labels are used for easy identification and many be up to 16 characters long
-        - Labels can be dispalyed or changed using the following commands
-            - `e2label` - ext-based file system
-            - `xfs_admin` - XFS-based file system
-
+  - Supported Linux file systems
+    - `FAT` - File allocation Table - Older file system, used for compatibility
+    - `ext2` - Used to be native linux file system on older releases
+    - `ext3` - Faster in recovering data and better ensures data integrity of abrupt system shutdowns
+    - `ext4` - Supports volumes up to 1 exabyte and files up to 16 terabytes in size
+    - `XFS` - 64-bit, high-performance journaling file system that provides fast recovery and can handle large files efficiently
+    - `BTRFS` - Modern filesystem. Supports volumes up to 16 exabytes in size and up to 18 quintillion files on each volume
+  - File system protocols
+    - Server Message Block (SMB)
+      - Allows users to have access to files over the local network
+      - Server-client architecture
+      - Better for mixture of windows and linux filesystems
+      - Microsoft Windows supports SMB by default
+    - Common Internet File system (CIFS)
+      - Some linux distribution refer to SMB as CIFS
+      - Version of SMB, rarely in use today, replaced by later versions
+    - Network File System (NFS)
+      - Better for all linux networks and filesystems
+      - Not supported by Microsoft Windows by default
+  - Index Node (Inode)
+    - Stores metadata about a file or directory on a file system
+    - Can included time-based values (created, modified, etc), permission and ownership info,
+  - Virtual File System (VFS)
+    - Filesystem created as interface between kernel and real file system
+    - Translates real file system details to kernel
+    - Can mount many file systems on OS, and will appear uniform to system and applications
+    - File system labels are used for easy identification and many be up to 16 characters long
+    - Labels can be displayed or changed using the following commands
+      - `e2label` - ext-based file system
+      - `xfs_admin` - XFS-based file system
 
 ## Partitioning
 
-- Partition - A section of the storage drive that logically acts as a seperate drive
+- Partition - A section of the storage drive that logically acts as a separate drive
 
 - 3 Types of partitions
     1. Primary
         - Contains one file system or logical drive and is sometimes referred to as a volume
-        - Examples: 
+        - Examples:
             - swap file system - Used as buffer for actual physical memory
             - boot partition
     2. Extended
         - Contains several file systems, which are referred to as logical drives
         - Does not contain data
-        - Has seperate partition table
+        - Has separate partition table
     3. Logical
-        - Partitioned and allocated as an independent unit and functions as a seperate drive
+        - Partitioned and allocated as an independent unit and functions as a separate drive
 
 - Modifying partitions
-    - `fdisk`
-        - Used to create, modify, or delete partitions on a storage drive
-        - `-b` - Number of drive sectors
-        - `-H` - Number of drive heads
-        - `-S` - Number of sectors per track
-        - `-s` - Print partition size in blocks
-        - `-l` - List partition tables for devices
-        - Within the `fdisk` menu:
-            - `n` - Create new partitions
-            - `d` - Remove paritition
-            - `p` - List exixsting partitions
-            - `w` - Write drive changes and exit utility
-            - `q` - Cancel changes made and exit utility
-    - `parted`
-        - Partition manipulation program
-        - Create, destroy, and resize partitions
-        - Runs GNU parted utility
-        - Can use interactive mode (ie. `sudo parted`)
-            - `select` - choose device or partition to modify
-            - `mkpart` - Create partition with file system type specified
-            - `print` - List partition table
-            - `resizepart` - Resize and modify a partition's end position
-            - `rm` - Delete partition
-            - `quit` - Quite interactive mode
-    - `partprobe`
-        - Update the kernel with changes that now exist within the partition table
-        - If there are any changes, kernel is updated with those changes
-        - Used after using `fdisk` or `parted`
-    - `mkfs`
-        - Build a Linux file system on a device, which is usually a drive partition
-        - `-v` - Produce verbose output - Program process
-        - `-V` - Produce verbose output - All file system-specific commands executed
-        - `-t {fs type}` - Specify type of file system to build
-        - `fs -options` - Pass system-specific options to the file system builder
-        - `-c` - Check the device for bad blocks before building the file system
-        - `-l {filename}` - Read the list of bad blocks from a specific file
-        - Can run it two ways
+  - `fdisk`
+    - Used to create, modify, or delete partitions on a storage drive
+    - `-b` - Number of drive sectors
+    - `-H` - Number of drive heads
+    - `-S` - Number of sectors per track
+    - `-s` - Print partition size in blocks
+    - `-l` - List partition tables for devices
+    - Within the `fdisk` menu:
+      - `n` - Create new partitions
+      - `d` - Remove partition
+      - `p` - List exixsting partitions
+      - `w` - Write drive changes and exit utility
+      - `q` - Cancel changes made and exit utility
+  - `partprobe`
+    - Update the kernel with changes that now exist within the partition table
+    - If there are any changes, kernel is updated with those changes
+    - Used after using `fdisk` or `parted`
+    - Examples:
+      - Update all: `partprobe`
+      - Update added new partition: `partprobe /dev/sdb`
+      - Only do dry run: `partprobe --dry-run`
+  - `mkfs`
+    - Build a Linux file system on a device, which is usually a drive partition
+    - Typically used like this: `mkfs.<FILE_SYSTEM_TYPE>`
+      - Examples: `mkfs.xfs /dev/sdb`, `mkfs.ext4 /dev/sdb2`
+      -
+    - `-v` - Produce verbose output - Program process
+    - `-V` - Produce verbose output - All file system-specific commands executed
+    - `-t {fs type}` - Specify type of file system to build
+    - `fs -options` - Pass system-specific options to the file system builder
+    - `-c` - Check the device for bad blocks before building the file system
+    - `-l {filename}` - Read the list of bad blocks from a specific file
+    - Can run it two ways
             1. `mkfs [options] {device name}`
             2. `mkfs {file system type} [options] {device name}`
+  - `parted`
+    - Partition manipulation program
+    - Create, destroy, and resize partitions
+    - Runs GNU parted utility
+    - Can use interactive mode (ie. `sudo parted`)
+      - `select` - choose device or partition to modify
+      - `mkpart` - Create partition with file system type specified
+      - `print` - List partition table
+      - `resizepart` - Resize and modify a partition's end position
+      - `rm` - Delete partition
+      - `quit` - Quite interactive mode
+    - Example:
+      - Open interactive mode: `parted /dev/sdb`
+      - `mkpart` -> Enter partition items
 
 ## `/etc/fstab` file
 
@@ -778,21 +782,24 @@
 - Read by system during boot up process
 - Only edited by `root` user
 - Each line in this file has 6 fields:
-    - ```
+
+  - ```
       <file system> <mount point> <type> <options> <dump> <pass>
       ```
-    - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
-    - Mount Point - Where to mount file system (ie. `/home`)
-    - File system type - Type of file system (ie. `ext4`, `swap`)
-    - Options - Comma-seperated options that will be activated when the file system is mounted
-    - Dump - If the dump utility should back up file system (0 or 1)
-    - Pass - fsck options. Order in whic `fsck` utility should check file system
+
+  - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
+  - Mount Point - Where to mount file system (ie. `/home`)
+  - File system type - Type of file system (ie. `ext4`, `swap`)
+  - Options - Comma-seperated options that will be activated when the file system is mounted
+  - Dump - If the dump utility should back up file system (0 or 1)
+  - Pass - fsck options. Order in which `fsck` utility should check file system
 
 ## `etc/crypttab` file
 
 - Information about encrypted devices and partitions that must be unlocked and mounted
   on system boot
 - Encrypted block devices that are set up during system boot
+
 - ```
   <volume-name> <encrypted-device> <key-file> <options>
   ```
@@ -811,43 +818,118 @@
 ## Storage Device Naming
 
 - `/dev/sda1` - Controller-based naming
-    - `sd` - Type of controller
-    - `a` - First whole physical drive (`a`, `b`, etc)
-    - `1` - First paritition on drive (`1`, `2`, etc)
+  - `sd` - Type of controller
+  - `a` - First whole physical drive (`a`, `b`, etc)
+  - `1` - First partition on drive (`1`, `2`, etc)
 - `/dev/disk/by-id/<DEVICE_ID>`
-    - Device's hardware serial number
-    - Examples:
-        - `/dev/disk/by-id/nvme-eui.6479a765c13012c5-part1`
-        - `/dev/disk/by-id/nvme-ESE2A047-M24_NVMe_Phison_1024GB_1782073611ED00110458-part8`
+  - Device's hardware serial number
+  - Examples:
+    - `/dev/disk/by-id/nvme-eui.6479a765c13012c5-part1`
+    - `/dev/disk/by-id/nvme-ESE2A047-M24_NVMe_Phison_1024GB_1782073611ED00110458-part8`
 - `/dev/disk/by-path/<PHYSICAL PATH`
-    - Shortest physical path to the device
-    - Example:
-        - `/dev/disk/by-path/pci-0000:00:0e.0-pci-10000:e1:00.0-nvme-1-part1`
+  - Shortest physical path to the device
+  - Example:
+    - `/dev/disk/by-path/pci-0000:00:0e.0-pci-10000:e1:00.0-nvme-1-part1`
 - `/dev/disk/by-uuid/<DEVICE UUID>`
-    - Universally unique identifier (UUID)
-    - Example:
-        - `/dev/disk/by-uuid/5cb09b2f-53d2-4f43-a292-8ebe4d65371g`
+  - Universally unique identifier (UUID)
+  - Example:
+    - `/dev/disk/by-uuid/5cb09b2f-53d2-4f43-a292-8ebe4d65371g`
 - Other naming:
-    - `/dev/disk/by-label/<DEVICE_LABEL>`
+  - `/dev/disk/by-label/<DEVICE_LABEL>`
 
 ## Special character devices in `/dev`
 
 - `/dev/null`
-    - Virtual device that discards anything you send or redirect into it
-    - Ie. a big black hole for data
-    - Example usage:
-        - Discard output: `echo "hello" > /dev/null`
-        - Surpress errors: `touch file 2> /dev/null`
+  - Virtual device that discards anything you send or redirect into it
+  - Ie. a big black hole for data
+  - Example usage:
+    - Discard output: `echo "hello" > /dev/null`
+    - Suppress errors: `touch file 2> /dev/null`
 - `/dev/zero`
-    - Returns a null character anytime you read from it
-    - Send back the ASCII null character of 0x00
-    - Example usage:
-        - Sanitize hard drive: `dd if=/dev/zero of=/dev/sda1 bs=1GB count=1024`
+  - Returns a null character anytime you read from it
+  - Send back the ASCII null character of 0x00
+  - Example usage:
+    - Sanitize hard drive: `dd if=/dev/zero of=/dev/sda1 bs=1GB count=1024`
 - `/dev/urandom`
-    - Returns a randomized series of pseudorandom numbers
-    - Example usage:
-        - Get 5 random characters: `head -c 5 /dev/urandom`
-        - Generate secure token: `dd if=/dev/urandom  count=1 bs=128 | sha512sum`
+  - Returns a randomized series of pseudorandom numbers
+  - Example usage:
+    - Get 5 random characters: `head -c 5 /dev/urandom`
+    - Generate secure token: `dd if=/dev/urandom  count=1 bs=128 | sha512sum`
 
+## Logical Volume
 
+Device Mapper
+    - Creates virtual device and passes data from that virtual device
+to one or more physical devices.
 
+DM-Multipath
+    - Linux kernel feature that rrovides redundancy and improved
+performance for block storage devices.
+    - If one path fails, it will switch to other remaining paths
+
+`mdadm`
+    - Tool used to create and manage software- based RAID arrays
+    - Create manage and monitor RAID arrays
+    - Data is in multiple different storage devices
+    - Alternative to using device mapper and DM-Multipath
+
+### RAID (Redundant Array of Independent or Inexpensive Disks)
+
+- Way of storing the same data in different places on multiple physical disks
+  to protect data in the case of a drive failure.
+- RAID arrays appear to the OS as a single logical drive
+- Techniques used in RAID:
+    1. Striping
+        - Combines multiple smaller physical disks to logical act as a single largert disk
+        - Used to combine physical storage into one single logical storage
+    2. Mirroring
+        - Combines two physical hard drives into a single logical volume where an
+          identical copy of everything is put on both drives
+    3. Parity
+        - Used for fault tolerance by calculating the data in two drives and storing
+          the results on a different drive
+        - Storing information used to reconstruct the data
+        - If you know the value of any two of the three items, you can calculate the third
+- RAID is classified with levels (ie. 0, 1, ..., 10):
+  - <https://en.wikipedia.org/wiki/Standard_RAID_levels>
+  - RAID 0
+    - Striping
+    - Each drive holds half of the data
+    - Speed boost
+    - No loss of disk space
+    - BUT no data redundancy!
+  - RAID 1
+    - Mirroring
+    - Disks have same data
+    - Data redundancy
+    - BUT loss of space!
+  - RAID 5 *(Most popular)*
+    - Striping and Parity
+    - Data redundancy and pairty
+    - Need at least 3 disks (need at least 2 disks to compute the parity on the other disk)
+    - Can lose 1 drive and still calculate based on remaining 2
+    - More efficient to create RAID 5, in terms of space, than RAID 1 using a
+          mirrored array
+  - RAID 6
+    - Striping and DUAL Parity
+    - Need at least 4 disks
+    - Can lose 2 drives and still calculate based on remaining 2
+  - RAID 10
+    - Mirroring and Striping
+    - "RAID of RAIDS"
+    - Need at least 4 disks
+    - Drives come in disk pairs to be stripped, then the stripped
+          disk pair is mirrored to another disk pair
+    - Benefit of RAID 0 and RAID 1
+    - Losing half of disk space
+
+- `/proc/mdstat` file
+  - Contains a snapshot of the kernel's RAID/md state
+  - Shows what RAID levels can be supported by kernel
+  - Shows active RAID arrays with participating disk drives
+  - Shows disk status (ie. `[UUU_]` -> Up Up Up Down)
+
+### Logical Volume Manager (LVM)
+
+- Maps whole physical devices and partitions into one or more virtual containers
+  called volume groups
