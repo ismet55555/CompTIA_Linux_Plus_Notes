@@ -2,6 +2,29 @@
 
 <h1 align="center">CompTIA Linux+ Certificate Notes</h1>
 
+- [Users and Groups](#users-and-groups)
+  - [Users: Create, Modify, and Delete](#users-create-modify-and-delete)
+  - [Groups: Create, Modify, and Delete](#groups-create-modify-and-delete)
+  - [Query Users and Groups](#query-users-and-groups)
+  - [Account Profile](#account-profile)
+- [Permissions and Ownership](#permissions-and-ownership)
+  - [File and Directory Permissions](#file-and-directory-permissions)
+  - [File and Directory Ownership](#file-and-directory-ownership)
+  - [Special Permissions and Attributes](#special-permissions-and-attributes)
+  - [Access Control Lists (ACLs)](#access-control-lists-acls)
+  - [Troubleshooting Permissions Issues](#troubleshooting-permissions-issues)
+- [Storage](#storage)
+  - [File Systems](#file-systems)
+  - [Partitioning](#partitioning)
+  - [`/etc/fstab` file](#etcfstab-file)
+  - [`etc/crypttab` file](#etccrypttab-file)
+  - [Overall process for setting up storage on linux machines](#overall-process-for-setting-up-storage-on-linux-machines)
+  - [`/dev` directory](#dev-directory)
+  - [Storage Device Naming](#storage-device-naming)
+  - [Special character devices in `/dev`](#special-character-devices-in-dev)
+
+
+
 ## Intro
 
 - Multiple-choice and performance-based questions
@@ -12,7 +35,9 @@
 
 ## Preparation
 
-TODO
+- **Course**: *Udemy - CompTIA Linux+ Complete Course & Exam - Jason Dion*
+- **Practice Exams** - *Udemy - CompTIA Linux+ Practice Exams - Jason Cannon*
+- **Book** - *CompTIA Linux+ Study Guide - Richard Blum, Christine Breshahan*
 
 ## Linux Installation
 
@@ -509,9 +534,10 @@ TODO
   - Difference between `chmod` and `umask`
     - `umask` changes _default_ permissions for _newly_ created files and directories
     - `chmod` sets permissions on files and directories that _already exist_
-  - Example:
-    - `umask a+r`
-    - `umask 077`
+  - Examples:
+    - `umask a+r` - Take away read for all
+    - `umask 020` - Take away write from group
+    - `umask 077` - Take away read, write, and execute from group and other
 
 ## File and Directory Ownership
 
