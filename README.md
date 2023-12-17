@@ -28,13 +28,17 @@
 - [Packages and Software](#packages-and-software)
 - [Securing Linux Systems](#securing-linux-systems)
   - [Cybersecurity Best Practices](#cybersecurity-best-practices)
-  - [Encrypting a Volume](#encrypting-a-volume)
-  - [Identify and Access Management](#identify-and-access-management)
-  - [Configuring SSH](#configuring-ssh)
+    - [Encryption](#encryption)
+    - [Hashing](#hashing)
+    - [Network Configurations](#network-configurations)
+    - [Best Practices](#best-practices)
+  - [Identify and Access Management (IAM)](#identify-and-access-management-iam)
+    - [SSH](#ssh)
+    - [Pluggable Auth Modules (PAM)](#pluggable-auth-modules-pam)
+    - [Public Key Infrastructure (PKI)](#public-key-infrastructure-pki)
   - [SELinux and AppArmor](#selinux-and-apparmor)
   - [Firewalls](#firewalls)
   - [Logging Services](#logging-services)
-  - [Configuring rsyslog](#configuring-rsyslog)
   - [Backup, Restore, and Verify Data](#backup-restore-and-verify-data)
   - [Backup, Restore, Synchronize](#backup-restore-synchronize)
   - [Compressing Files](#compressing-files)
@@ -48,6 +52,11 @@
 - Most questions don't need specific syntax but reaonsing (what tool? why the tool)
 - [Official Exam Overview](<https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0)>)
 - [Exam Objectives](https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0))
+- Questions
+    - Multiple Choice
+    - [Performance-based](https://www.comptia.org/blog/what-is-a-performance-based-question#:~:text=Performance%2Dbased%20questions%20on%20the,hands%2Don%20experience%20more%20thoroughly.)
+        - Simulations
+        - Virtual environments
 
 ## Preparation
 
@@ -154,7 +163,7 @@
 
 # Users and Groups
 
-- 3 types of accounts:
+Three types of Linux user accounts:
 
   1. **root**
 
