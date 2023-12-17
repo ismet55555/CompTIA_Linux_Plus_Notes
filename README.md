@@ -18,10 +18,27 @@
   - [Partitioning](#partitioning)
   - [`/etc/fstab` file](#etcfstab-file)
   - [`etc/crypttab` file](#etccrypttab-file)
-  - [Overall process for setting up storage on linux machines](#overall-process-for-setting-up-storage-on-linux-machines)
-  - [`/dev` directory](#dev-directory)
-  - [Storage Device Naming](#storage-device-naming)
-  - [Special character devices in `/dev`](#special-character-devices-in-dev)
+  - [Troubleshooting Storage Issues](#troubleshooting-storage-issues)
+- [Files and Directories](#files-and-directories)
+- [Kernel Modules](#kernel-modules)
+- [Linux Boot Process](#linux-boot-process)
+- [System Components](#system-components)
+- [Devices](#devices)
+- [Networking](#networking)
+- [Packages and Software](#packages-and-software)
+- [Securing Linux Systems](#securing-linux-systems)
+  - [Cybersecurity Best Practices](#cybersecurity-best-practices)
+  - [Encrypting a Volume](#encrypting-a-volume)
+  - [Identify and Access Management](#identify-and-access-management)
+  - [Configuring SSH](#configuring-ssh)
+  - [SELinux and AppArmor](#selinux-and-apparmor)
+  - [Firewalls](#firewalls)
+  - [Logging Services](#logging-services)
+  - [Configuring rsyslog](#configuring-rsyslog)
+  - [Backup, Restore, and Verify Data](#backup-restore-and-verify-data)
+  - [Backup, Restore, Synchronize](#backup-restore-synchronize)
+  - [Compressing Files](#compressing-files)
+  - [Itengrity Checking](#itengrity-checking)
 
 ## Intro
 
@@ -29,7 +46,8 @@
 - CompTIA Linux+ Text Book?
 - Choose answers that are MOST right in MOST situations
 - Most questions don't need specific syntax but reaonsing (what tool? why the tool)
-- Official Overview: <https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0)>
+- [Official Exam Overview](<https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0)>)
+- [Exam Objectives](https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0))
 
 ## Preparation
 
@@ -698,6 +716,8 @@
   - Index Node (Inode)
     - Stores metadata about a file or directory on a file system
     - Can included time-based values (created, modified, etc), permission and ownership info,
+    - Determine filesystem ionodes:
+      - `df -i <PATH>`
   - Virtual File System (VFS)
     - Filesystem created as interface between kernel and real file system
     - Translates real file system details to kernel
@@ -777,6 +797,7 @@
 
 ## `/etc/fstab` file
 
+- "File system table"
 - Stores info about storage devices and partitions and where and how they should be mounted
 - Config file that controls how file systems are treated when they are introduced to a system
 - Read by system during boot up process
@@ -789,7 +810,7 @@
 
   - File system - Name of the device (UUID) or file system to mount (`/mnt/something`)
   - Mount Point - Where to mount file system (ie. `/home`)
-  - File system type - Type of file system (ie. `ext4`, `swap`)
+  - File system type - Type of file system (ie. `ext4`, `swap`) (Partition ID: 82)
   - Options - Comma-seperated options that will be activated when the file system is mounted
   - Dump - If the dump utility should back up file system (0 or 1)
   - Pass - fsck options. Order in which `fsck` utility should check file system
@@ -873,7 +894,7 @@ performance for block storage devices.
     - Data is in multiple different storage devices
     - Alternative to using device mapper and DM-Multipath
 
-### RAID (Redundant Array of Independent or Inexpensive Disks)
+## RAID (Redundant Array of Independent or Inexpensive Disks)
 
 - Way of storing the same data in different places on multiple physical disks
   to protect data in the case of a drive failure.
@@ -929,7 +950,477 @@ performance for block storage devices.
   - Shows active RAID arrays with participating disk drives
   - Shows disk status (ie. `[UUU_]` -> Up Up Up Down)
 
-### Logical Volume Manager (LVM)
+## Logical Volume Manager (LVM)
 
-- Maps whole physical devices and partitions into one or more virtual containers
-  called volume groups
+- LVM maps whole *physical devices* and partitions into one or more virtual containers
+  called *volume groups*
+
+- Within *volume groups* there are one or more *logical volumes* that the system/user/apps
+  interact with
+
+- Can dynamically create, delete, and resize volumes without system reboot
+
+- Can map logical volumes across multiple physical devices
+
+- Create virtual snapshots of each logical volume
+
+- `/dev/mapper`
+  - Shows all logical volumes on given system managed by LVM
+  - Typically named: `/dev/mapper/<VOLUME_GROUP_NAME>-<LOGICAL_VOLUME_NAME>`
+
+- Tools for LVM ([Documentation](https://linux.die.net/man/8/lvm))
+    **NOTE:** Exam will not ask for each and every one of these commands
+    1. Physical volume tools
+        - `pvscan` - Scan for all physical devices being used as physical volume
+        - `pvcreate`  - Initialize a drive or parittion to use as a phsycial volume
+        - `pvdisplay` - Lists attributes of physical volumes
+        - `pvchange` - Changes attributes of a physical volume
+        - `pvs` - Displays info about physical volumes
+        - `pvck` - Check metadata of physical volumes
+        - `pvremove` - Removes physical volumes
+    2. Volume group tools
+        - `vgscan` - Scan for all phsycial devices for volume groups
+        - ...
+    3. Logical volume tools
+        - ...
+
+### Typical LVM Step Process
+
+1. Connect/Create physical disk
+2. Partition the drive
+3. Add the new physical volume `pvcreate`
+4. Create new volume group **OR** add physical volume to existing volume group
+5. Create a new logical volume **OR** Extend existing logical volume to unused physical volume
+
+Example:
+    - Create physical volume
+        - `pvcreate /dev/sdb1`
+    - Show details
+        - `pvscan`
+        - `pvdisplay`
+    - Create a new "backup" volume group
+        - `vgcreate backup /dev/sdb1`
+    - Show details
+        - `vgscan`
+        - `vgdisplay`
+    - Create two logical volumes in "backup" volume group
+        - `vcreate --name sys_backup --size 2GB backup`
+        - `vcreate --name data_backup --size 2GB backup`
+    - Show details
+        - `lvscan`
+        - `lvdisplay`
+    - Extend logical volume by 3GB
+        - `lvextend -3GB /dev/backup/data_backup`
+    - Create filesystems:
+        - `mkfs.xfs /dev/backup/sys_backup`
+        - `mkfs.ext4 /dev/backup/data_backup`
+
+## Mounting File Systems
+
+- Mounting file system makes it available for users
+- Mount Point
+  - Access point that is typically an empty directory wher ea file system is loaded
+      or mounted to make it accessible to users
+  - `/dev/sda`
+    - `/dev/sda1` -> `/`
+    - `/dev/sda3` -> `/home`
+    - `/dev/sda5` -> `/var`
+
+- `mount`
+  - Command that loads a file system to a specified directory to make it
+      accessible to users and applications
+  - `mount [options] {device name} {mount point}`
+  - Options:
+    - `auto` - Device must be mounted automatically
+    - `noauto` - Device should not be mounted automatically
+    - `nouser` - Only the boot user can mount a device or a file system
+    - `user` - All users can mount a device or a file filesystem
+    - `exec` - Allow binaries/executables in the file system to be executed
+    - `noexec` - Prevent binaries in a file system from being executed
+    - `ro` - Mount file system as read only
+    - `rw` - Mount file system as read or write
+    - `sync` - Input and output operations should be done synchronously
+    - `async` - Input and output operations should be done asynchronously
+
+- `umount`
+  - Disassociate a mounted file system from the directory
+  - File system cannot be in use (any files open)
+  - `umount [options] {mount point}`
+  - Options:
+    - `-f` - Force unmount a file system
+    - `-l` - Lazy unmounting. References to file system cleaned up once file system is not in use
+    - `-R` - Recuirsively unmounts mount points (ie. `/dev`)
+    - `-t {type}` - Only unmount specific file system types (ie. `ext4`)
+    - `-O` - Unmount file systems in `/etc/fstab`
+    - `-fake` - Test the unmounting procedure (dry run)
+
+- Example usage:
+  - Make a directory to mount file system to
+    - `sudo mkdir -p /backup/sys`
+  - Mount logical volume
+    - `sudo mount /dev/backup/sys_backup /backup/sys`
+  - Show mounted file systems
+    - `mount`
+  - Unmount
+    - `sudo umount /dev/backup`
+  - Ensure mounting on system boot
+    - Edit: `sudo vim /etc/fstab`
+    - Add: `/dev/backup/sys_backup /backup/sys xfs defaults 0 0`
+    - Save and exit with :x
+    - Test mount fstab: `sudo mount -a`
+
+- Other mounting options
+  - `systemd.mount`
+    - Can be used to create a new mount unit to mount the file system
+    - Add unit to `/etc/systemd/system/`
+    - Example: `/etc/systemd/system/var-lib-docker.mount`
+    - Then: `systemctl enable var-lib-docker.mount`
+
+  - Filesystem in USERspace (FUSE)
+    - Lets non-privileged users create own file system without editing the underlying
+          kernel code
+    - Can be used for local interaction of cloud-based storage
+
+## Managing File Systems
+
+- `/etc/mtab` file
+  - Reports the status of currently mounted file systems
+  - `/proc/mounts` - More accurate and includes more up-to-date file system info
+
+- `/proc/partitions` file
+  - Contains info about each partition attached to the system
+  - Example contents:
+
+        ```txt
+        major minor  #blocks  name
+         259        0 1000204632 nvme0n1
+         259        1     245760 nvme0n1p1
+         259        2     131072 nvme0n1p2
+         259        3  585253888 nvme0n1p3
+        ```
+
+- `lsblk`
+  - Display info about block storage devices available on the system
+  - `lsblk -a` example output:
+
+        ```txt
+        NAME         MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+        sda            8:0    1     0B  0 disk 
+        sdb            8:16   1     0B  0 disk 
+        nvme0n1      259:0    0 953.9G  0 disk 
+        ├─nvme0n1p1  259:1    0   240M  0 part /boot/efi
+        ├─nvme0n1p2  259:2    0   128M  0 part 
+        ├─nvme0n1p3  259:3    0 558.1G  0 part 
+        ├─nvme0n1p4  259:4    0     1G  0 part 
+        ├─nvme0n1p5  259:5    0  16.9G  0 part 
+        ├─nvme0n1p6  259:6    0   1.5G  0 part 
+        ├─nvme0n1p7  259:7    0   954M  0 part 
+        ├─nvme0n1p8  259:8    0   954M  0 part 
+        ├─nvme0n1p9  259:9    0  44.7G  0 part /var/snap/firefox/common/host-hunspell
+        │                                      /
+        ├─nvme0n1p10 259:10   0  72.6G  0 part /var
+        ├─nvme0n1p11 259:11   0  22.4G  0 part [SWAP]
+        └─nvme0n1p12 259:12   0 234.5G  0 part /home
+        ```
+
+- `blkid`
+  - Prints each block device in a float format and includes some additional info
+  - `blkid -o list` example output:
+  - ```txt
+
+device                    fs_type    label       mount point                   UUID
+    --------------------------------------------------------------------------------------------------------------------
+
+    /dev/nvme0n1p11           swap                   [SWAP]                        eec1832c-616d-45ed-a66b-e788e6bf8326
+    /dev/nvme0n1p9            ext4                   /                             3cb09b2f-53d2-4f43-a292-8ebe4d65371a
+    /dev/nvme0n1p7                                   (not mounted)
+    /dev/nvme0n1p5                                   (not mounted)
+    /dev/nvme0n1p3                                   (not mounted)
+    /dev/nvme0n1p1                                   /boot/efi
+    /dev/nvme0n1p12                                  /home
+    /dev/nvme0n1p8                                   (not mounted)
+    /dev/nvme0n1p10                                  /var
+    /dev/nvme0n1p6                                   (not mounted)
+    /dev/nvme0n1p4                                   (not mounted)
+    /dev/nvme0n1p2                                   (not mounted)
+    ```
+
+- `fsck`
+  - Check for correctness and validity of a file system
+  - Repair file system: `fsck -r {device/file system name}`
+
+- `resize2fs`
+  - Increase or decreate file system size
+  - Typically used after resizing logical volumes in LVM
+  - Resize ext2, ext3, or ext4 file system
+  - `resize2fs [options] {device/file system name} [desired size]`
+  - If no size is specified, fill up remaining open space on volume
+
+- `tune2fs`
+  - Adjust various tunable parameters of that ext2/ext3 file systems
+  - Can use to add jounral to an existing ext2 and ext3 file system
+  - `tune2fs [options] {device/file system name}`
+
+- `dumpe2fs`
+  - Prints the superblock and block group info for the selected device
+  - "Superblock" - Contains metadata about the file system (size, type, status)
+  - For ext2, ext3, or ext4 file system
+  - Can be used for faulty file system
+
+- XFS File System Tools
+  - `xfs_info` - Display details about the XFS file system
+  - `xfs_admin` - Change the parameters of an XFS file system
+  - `xfs_metadump` - Copy the superblock metadata of the XFS file system to a file
+  - `xfs_growfs` - Expand the XFS file system
+  - `xfs_copy` - Copy the contents of the XFS file system to another location
+  - `xfs_repair`
+  - `xfs_db`
+
+- `lsscsi`
+  - List info about SCSI (SKUH-zee) devices connected to a linux system
+  - SCSI (Small Computer System Interface) is used to connect and communicate between
+      computers and peripheral devices, such as hard disk devices, tape drives, CD/DVD,
+      printers, and scanners.
+  - Relatively old devices
+
+- `fcstat`
+  - Interacts with and displays statistics of fibre channels connected devices
+
+## Linux Directory Structure
+
+- Filesystem Hierarchy Standard (FHS) specifies a set of guidelines for the names
+  of files and directories and their locations on Linux systems
+
+- `/` - Top-most directory in linux system
+
+```txt
+/
+├── bin -> usr/bin        - Essential command-line utilities and binaries (ie. `ls`)
+├── boot                  - Files necessary to boot Linux OS
+├── cdrom
+├── dev                   - Hardware and software device drivers (ie, hard drive, printer)
+├── etc                   - Basic configuration files
+├── home                  - Users' home directories, including personal files (ie. /home/ismet/)
+├── lib -> usr/lib        - Shared program libraries required by kernel, CLI utils, and binaries
+├── media                 - Mount points for removable media (ie CD, floppy disks)
+├── mnt                   - Mount point for temporary mounting file systems (ie. USB drive)
+├── opt                   - Optional files for large software packages
+├── proc                  - Continually updated kernel info to user in file format (ie. `/proc/mounts`)
+├── root                  - Home directory of root user
+├── run
+├── sbin -> usr/sbin      - Binaries used for completing the booting process which are also used by root user (ie `/sbin/ifconfig`)
+├── snap
+├── squashfs-root
+├── srv
+├── sys                   - Info about devices
+├── tmp                   - Temporary files lost/cleared on system shutdown
+├── usr                   - Read-only directory storing small programs and files accessible to all users
+    ├── bin               - Binaries executed by all users
+    ├── lib               - Libraries for executable programs
+    ├── lib64             - Libraries for 64-bit systems
+    ├── local            - Custom build application stored here
+    ├── share            - Read-only files about the system
+    ├── sbin
+    ....
+└── var                   - Variable files, or files that are expected to constantly change (ie. /var/log/syslog). Can include spool files.
+```
+
+## Troubleshooting Storage Issues
+
+- `ulimit`
+  - Limits the system resources for a user in a Linux-based server
+  - Set 500 maximum open files for user: `ulimit -n 500`
+  - Show all current limits: `ulimit -a`
+
+- `df`
+  - Displays the device's storage space
+  - Ued, available, Used %, mount point
+
+- `du`
+  - Display how a device is used
+  - Size of directory tree and files within it
+  - Able to show how used storage is distributed
+
+- `/sys/block/<DEVICE>/queue/scheduler`
+  - Set the scheduler to use on a particular device
+  - Example setting NOOP scheduler for `sda`
+    - `echo noop > /sys/block/sda/queue/scheduler`
+
+- `iostat`
+  - Generates reports on CPU and device/partition usage
+  - Incremental reports every 2 seconds: `iostat 2`
+
+- `ioping`
+  - Monitor I/O latency in real time
+  - Troubleshoot latency with storage devices
+  - Generates a report of device I/O latency in real time
+  - Disk seek rate: `ioping -R /dev/sda`
+  - Disk sequential speed: `ioping -RL /dev/sda`
+  - Current directory: `ioping .`
+
+- `repquota`
+  - Summary of existing file quotas for a file system
+  - `repquota /backup/data`
+
+# Files and Directories
+
+TODO
+
+# Kernel Modules
+
+TODO
+
+# Linux Boot Process
+
+TODO
+
+# System Components
+
+TODO
+
+# Devices
+
+TODO
+
+# Networking
+
+TODO
+
+# Packages and Software
+
+TODO
+
+# Securing Linux Systems
+
+## Cybersecurity Best Practices
+
+- Cybersecurity
+  - Protection of computer systems and digital info resources from
+unauthorized access, attack, theft, or data damage.
+
+- Confidentiality
+  - Prevent data theft, no unauthorized access
+  - Use encryption and access controls
+
+- Integrity
+  - Keep info/data without unauthorized modifications
+  - Prevent defacement
+  - Use hashing, digital signatures, certificates, change control
+
+- Availability
+  - Authorized users can access data when they need to
+  - Prevent deniel of Service (DoS)
+  - Use redundancy, fault tolerance, patching
+
+- Remote Authentication Dial-In User Service (RADIUS)
+  - Internet standard protocol that provides authentication, authorization, and
+      accounting (AAA) services
+  - Terminal Access Control Access-Control System (TACACS) - Provides AAA services for remote users
+
+- Lightweight Directory Access Protocol (LDAP)
+  - TCP/IP-based directory service protocol
+  - Authenticate to LDAP service
+  - Service has schema of what client can and can't do
+
+- Kerberos
+  - Auth service based on time-sensitive ticket-granting system
+  - Windows-native
+  - Linux has kerberos usage as well
+
+- Chroot Jail
+  - Isolate a process and its children from the rest of the system
+  - Only use on processes not run as root. Root user can break out of jail.
+
+### Encryption
+
+- Full Drive/Disk Encryption (FDE) - Encryptes a storage drive, partition, or volume using hardware/software utilities
+- File Encryption - Encrypts indiviaul files and folders
+- Linux Unified Key Setup (LUKS)
+  - Used to encrypt storage devices in Linux system
+  - Standardizes the format of encrypted devices
+  - `cryptsetup`
+    - Front-end to LUKS and dm-crypt
+    - `cryptsetup [options] {action} [action arguments]`
+    - `isLuks` - id if a device is a LUKS device
+    - `luksOpen` - Open LUKS storage device
+    - `luksAddKey` - New key with a LUKS device
+- `shred`
+  - Securetly wipe a storage
+  - Write all zeros/random data on it
+- Example step process:
+  - Unmount filesystem from mount point
+    - `sudo umount /backup/data`
+  - Clean partition
+    - `sudo shred -v iterations=1 /dev/backup/data_backup`
+  - Encrypt with passphrase
+    - `sudo cryptsetup -v luksFormat /dev/backup/data_backup`
+    - Enter passphrase
+  - Let system map
+    - `sudo cryptsetup luksOpoen /dev/backup/data_backup data_backup`
+    - Enter passphrase
+  - Verify/Search for new item
+    - `ls -la /dev/mapper | grep data_backup
+  - Make a filesystem for it
+    - `sudo mkfs.ext4 /dev/mapper/data_backup`
+  - Mount the filesystem to location
+    - `sudo mount /dev/mapper/data_backup /backup/data/`
+  - Add to fstab file
+    - `/dev/mapper/data_backup /backup/data ext4 nofail 0 0`
+
+### Hashing
+
+- Transforms plaintext input into an indecipherable, fixed-length output
+- Involves a hash function that converts input in fixed-size string of bytes
+- Input varies but hashlength always fixed
+-
+- Examples:
+  - Password storage
+    - Store hash of password
+    - Modern systems add "salt" (random value unique to each user) to password before hashing
+  - Data integrity
+    - Hash files and verify integrity of hashed filed to make sure it did not change
+    - Tools like `md5sum` or `sha256sum`
+    - Packaging tools like `apt` use hashing
+  - Secure data transmission
+  - Network security
+  - File identification
+
+### Network Configurations
+
+- Enable SSL/TLS
+  - Encrypt data during transit
+- Enable SSH
+  - Disable root access
+  - Enable allow list
+  - Change port (ie. 2222)
+
+### Best Practices
+
+- Protect boot loader configuration with a password
+- Enable password protection in system's BIOS/UEFI
+- Can prevent kernel modules to load at boot
+  - Blocklist file in `/etc/modprobe.d/
+- Ensure user IDs are not being shared
+- Establish a public key infrastructure for authentication
+- Restrict access to cron job scheduler
+- Disable the use of Ctrl-Alt-Delete to prevent users to reboot system
+- Enable the `auditd` service
+- Add banner when user logs into system with `/etc/issue`
+- Separate OS and other data in different partitions
+- Disable or uninstall unused or insecure services
+
+## Identify and Access Management
+
+## SELinux and AppArmor
+
+## Firewalls
+
+## Logging Services
+
+## Backup, Restore, and Verify Data
+
+## Backup, Restore, Synchronize
+
+## Compressing Files
+
+## Itengrity Checking
