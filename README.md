@@ -1409,9 +1409,125 @@ unauthorized access, attack, theft, or data damage.
 - Separate OS and other data in different partitions
 - Disable or uninstall unused or insecure services
 
-## Identify and Access Management
+## Identify and Access Management (IAM)
+
+- IAM - Security process that provides identity, authentication, authorization mechnaisms
+
+- Public Key Authentication
+  - Used for interactive and automated connections
+  - Between servers or users and servers
+  - Stronger than regular password
+  - Passwordless logins
+
+### SSH
+
+- Supports many authentication methods
+
+- `~/.ssh/` directory
+  - Contains files related to SSH keys
+
+- Configuration files within `~/.ssh/` directory
+  - `~/.ssh/id_rsa` - User's private key
+  - `~/.ssh/id_rsa.pub` - User's public key
+  - `~/.ssh/authorized_keys` - Public keys that SSH server accepts
+  - `~/.ssh/known_hosts` - Public keys that the SSH client accepts
+  - `~/.ssh/config` - SSH connection settings
+
+- `/etc/ssh/sshd_config` file
+  - Configure the SSH server
+  - Edit: `vim /etc/ssh/sshd_config`
+  - Settings in this file include:
+    - `PasswordAuthentication` - Enable/Disable password-based SSH authentication
+    - `PubkeyAuthentication` - Enable/Disable public key-based authentication
+    - `Hostkey` - Location of the server's private keys
+    - `UsePAM` - Enable/Disable support for Pluggable Auth Modules (PAM)
+    - `Port` - Change port number for the SSH service
+    - `AllowUsers`/`AllowGroups` - Allow user/group-specific access for SSH
+    - `DenyUsers`/`DenyGroups` - Deny user/group-specific access for SSH
+    - `PermitRootLogin` - Enable/Disable root user to log in over SSH
+  - After changing: `systemctl restart sshd`
+
+- `/etc/hosts.allow` / `/etc/hosts.deny` files
+  - Allow and deny remote hosts access
+
+- `ssh-keygen` - Generate a public/private key pair
+- `ssh-copy-id` - Put user's public key (ie. `id_rsa.pub`) into remote server's `authorized_keys` file
+- `ssh-add` - Add user's private keys to the running SSH key agent
+
+### Pluggable Auth Modules (PAM)
+
+- Help apps make proper use of user accounts in Linux
+- LDAP most common use cases that uses this
+
+- `/etc/pam.d/` directory
+  - Stores PAM config files
+  - Include directives that PAM looks to for authentication
+
+- Modules
+  - Modules will generate success or failure when called
+  - Account module - checks user accessibility
+  - Auth - Verify passwords and set credentials (Kerberos tickets)
+  - Password - Change and verify passwords
+  - Session - Configure and manages user sessions
+
+- Control flags
+  - Tell PAM what to do with the result
+  - Optional, required, requisite, sufficient
+
+- Examples of PAM directives
+  - Require the user to enter a strong password
+    - `password requisite pam_pwquality.so local_users_only`
+  - Enforce a password history of 90 days
+    - `password requisite pam_pwhistory.so remember=90`
+  - Allow the module not to do any password checks
+    - `password sufficient pam_unix.so sha512 use_authtok`
+
+- User lockout
+  - Module `pam_failock` (newer `pam_tally2`)
+    - Trigger temporary user lockout at failed user auth
+  - Place user lockout directives in `/etc/pam.d/password-auth` and `/etc/pam.d/system-auth`
+  - `pam_tally2 -r -u user` - Unlock user and reset failure count
+
+- `/etc/securetty` - Determines the controlling terminals the root user has access to
+
+### Public Key Infrastructure (PKI)
+
+- PKI is a framework used to create, manage, distribute, use, store, and
+  revoke digital certificates and manage public-key encryption.
+
+- Publicly available or maintained privately by an organization
+
+- PKI Components
+  - Digital Signature
+    - Encrypted message digest with a user's private key
+  - Digital Certificate
+    - Electronic document that associates credentials with a public key
+  - Certificate Authority (CA)
+    - Issues digital certificates for entities and maintains the
+          associated private/public key pair
+  - Certificate Signing Request (CSR)
+    - Message sent to the certificate authority in which an entity applies
+          for a certificate
+
+- OpenSSL
+  - Open-source implementation of the SSL/TLS protocol for securing data
+      in transit using cryptography
+  - Most common tools for generating and managing components of a PKI
+  - `openssl [subcommand] [options]`
+
+- OpenVPN
+  - Supports password-based certificate-based, and smart card-based authentication
+      for clients
+  - Configure in `/etc/openvpn/` directory
 
 ## SELinux and AppArmor
+
+
+
+
+
+
+
 
 ## Firewalls
 
