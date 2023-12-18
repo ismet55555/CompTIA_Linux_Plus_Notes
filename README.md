@@ -53,10 +53,10 @@
 - [Official Exam Overview](<https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0)>)
 - [Exam Objectives](https://partners.comptia.org/docs/default-source/resources/comptia-linux-xk0-005-exam-objectives-(1-0))
 - Questions
-    - Multiple Choice
-    - [Performance-based](https://www.comptia.org/blog/what-is-a-performance-based-question#:~:text=Performance%2Dbased%20questions%20on%20the,hands%2Don%20experience%20more%20thoroughly.)
-        - Simulations
-        - Virtual environments
+  - Multiple Choice
+  - [Performance-based](https://www.comptia.org/blog/what-is-a-performance-based-question#:~:text=Performance%2Dbased%20questions%20on%20the,hands%2Don%20experience%20more%20thoroughly.)
+    - Simulations
+    - Virtual environments
 
 ## Preparation
 
@@ -167,32 +167,32 @@ Three types of Linux user accounts:
 
   1. **root**
 
-  - Superuser
-  - Admin tasks
-    - password reset,
-  - Provide security for some applications and commands
-  - More powerful than local admin on windows
-  - Do not log in as root user
-  - ID (uid) is always 0
+- Superuser
+- Admin tasks
+  - password reset,
+- Provide security for some applications and commands
+- More powerful than local admin on windows
+- Do not log in as root user
+- ID (uid) is always 0
 
   2. **standard**
 
-  - Regular system user
-    - Runs applications
-    - Configures databases
-    - Creates websites
-    - etc
-  - Should not be shared with anyone
-  - Exercise least privellage
-    - Give users only as much access as needed to perform certain tasks
+- Regular system user
+  - Runs applications
+  - Configures databases
+  - Creates websites
+  - etc
+- Should not be shared with anyone
+- Exercise least privellage
+  - Give users only as much access as needed to perform certain tasks
 
   3. **service**
 
-  - Specific to the service (ie. web server, database)
-  - No interactive login
-  - Run in background
-  - Often have configuration files
-  - Perform a single function (ie. printer service)
+- Specific to the service (ie. web server, database)
+- No interactive login
+- Run in background
+- Often have configuration files
+- Perform a single function (ie. printer service)
 
 - Always log into system with non-privelaged user account
 
@@ -886,23 +886,6 @@ Three types of Linux user accounts:
     - Get 5 random characters: `head -c 5 /dev/urandom`
     - Generate secure token: `dd if=/dev/urandom  count=1 bs=128 | sha512sum`
 
-## Logical Volume
-
-Device Mapper
-    - Creates virtual device and passes data from that virtual device
-to one or more physical devices.
-
-DM-Multipath
-    - Linux kernel feature that rrovides redundancy and improved
-performance for block storage devices.
-    - If one path fails, it will switch to other remaining paths
-
-`mdadm`
-    - Tool used to create and manage software- based RAID arrays
-    - Create manage and monitor RAID arrays
-    - Data is in multiple different storage devices
-    - Alternative to using device mapper and DM-Multipath
-
 ## RAID (Redundant Array of Independent or Inexpensive Disks)
 
 - Way of storing the same data in different places on multiple physical disks
@@ -961,6 +944,19 @@ performance for block storage devices.
 
 ## Logical Volume Manager (LVM)
 
+- Device Mapper - Creates virtual device and passes data from that virtual device
+to one or more physical devices.
+
+- DM-Multipath - Linux kernel feature that rrovides redundancy and improved
+performance for block storage devices.
+  - If one path fails, it will switch to other remaining paths
+
+- `mdadm`
+  - Tool used to create and manage software- based RAID arrays
+  - Create manage and monitor RAID arrays
+  - Data is in multiple different storage devices
+  - Alternative to using device mapper and DM-Multipath
+
 - LVM maps whole *physical devices* and partitions into one or more virtual containers
   called *volume groups*
 
@@ -1002,27 +998,28 @@ performance for block storage devices.
 5. Create a new logical volume **OR** Extend existing logical volume to unused physical volume
 
 Example:
-    - Create physical volume
-        - `pvcreate /dev/sdb1`
-    - Show details
-        - `pvscan`
-        - `pvdisplay`
-    - Create a new "backup" volume group
-        - `vgcreate backup /dev/sdb1`
-    - Show details
-        - `vgscan`
-        - `vgdisplay`
-    - Create two logical volumes in "backup" volume group
-        - `vcreate --name sys_backup --size 2GB backup`
-        - `vcreate --name data_backup --size 2GB backup`
-    - Show details
-        - `lvscan`
-        - `lvdisplay`
-    - Extend logical volume by 3GB
-        - `lvextend -3GB /dev/backup/data_backup`
-    - Create filesystems:
-        - `mkfs.xfs /dev/backup/sys_backup`
-        - `mkfs.ext4 /dev/backup/data_backup`
+
+- Create physical volume
+  - `pvcreate /dev/sdb1`
+- Show details
+  - `pvscan`
+  - `pvdisplay`
+- Create a new "backup" volume group using the physical volume
+  - `vgcreate backup /dev/sdb1`
+- Show details
+  - `vgscan`
+  - `vgdisplay`
+- Create two logical volumes in "backup" volume group
+  - `lvcreate --name sys_backup --size 2GB backup`
+  - `lvcreate --name data_backup --size 2GB backup`
+- Show details
+  - `lvscan`
+  - `lvdisplay`
+- Extend one logical volume by 3GB
+  - `lvextend --size +3GB /dev/backup/data_backup`
+- Create filesystems on new logical volumes:
+  - `mkfs.xfs /dev/backup/sys_backup`
+  - `mkfs.ext4 /dev/backup/data_backup`
 
 ## Mounting File Systems
 
@@ -1031,9 +1028,9 @@ Example:
   - Access point that is typically an empty directory wher ea file system is loaded
       or mounted to make it accessible to users
   - `/dev/sda`
-    - `/dev/sda1` -> `/`
-    - `/dev/sda3` -> `/home`
-    - `/dev/sda5` -> `/var`
+    - `/dev/sda1` mounted on `/`
+    - `/dev/sda3` mounted on `/home`
+    - `/dev/sda5` mounted on `/var`
 
 - `mount`
   - Command that loads a file system to a specified directory to make it
@@ -1075,7 +1072,7 @@ Example:
   - Ensure mounting on system boot
     - Edit: `sudo vim /etc/fstab`
     - Add: `/dev/backup/sys_backup /backup/sys xfs defaults 0 0`
-    - Save and exit with :x
+    - Save and exit VIM with :x
     - Test mount fstab: `sudo mount -a`
 
 - Other mounting options
@@ -1135,23 +1132,24 @@ Example:
 - `blkid`
   - Prints each block device in a float format and includes some additional info
   - `blkid -o list` example output:
+
   - ```txt
 
-device                    fs_type    label       mount point                   UUID
-    --------------------------------------------------------------------------------------------------------------------
-
-    /dev/nvme0n1p11           swap                   [SWAP]                        eec1832c-616d-45ed-a66b-e788e6bf8326
-    /dev/nvme0n1p9            ext4                   /                             3cb09b2f-53d2-4f43-a292-8ebe4d65371a
-    /dev/nvme0n1p7                                   (not mounted)
-    /dev/nvme0n1p5                                   (not mounted)
-    /dev/nvme0n1p3                                   (not mounted)
-    /dev/nvme0n1p1                                   /boot/efi
-    /dev/nvme0n1p12                                  /home
-    /dev/nvme0n1p8                                   (not mounted)
-    /dev/nvme0n1p10                                  /var
-    /dev/nvme0n1p6                                   (not mounted)
-    /dev/nvme0n1p4                                   (not mounted)
-    /dev/nvme0n1p2                                   (not mounted)
+    device                    fs_type    label       mount point                   UUID
+        --------------------------------------------------------------------------------------------------------------------
+    
+        /dev/nvme0n1p11           swap                   [SWAP]                        eec1832c-616d-45ed-a66b-e788e6bf8326
+        /dev/nvme0n1p9            ext4                   /                             3cb09b2f-53d2-4f43-a292-8ebe4d65371a
+        /dev/nvme0n1p7                                   (not mounted)
+        /dev/nvme0n1p5                                   (not mounted)
+        /dev/nvme0n1p3                                   (not mounted)
+        /dev/nvme0n1p1                                   /boot/efi
+        /dev/nvme0n1p12                                  /home
+        /dev/nvme0n1p8                                   (not mounted)
+        /dev/nvme0n1p10                                  /var
+        /dev/nvme0n1p6                                   (not mounted)
+        /dev/nvme0n1p4                                   (not mounted)
+        /dev/nvme0n1p2                                   (not mounted)
     ```
 
 - `fsck`
@@ -1368,7 +1366,7 @@ unauthorized access, attack, theft, or data damage.
     - `sudo cryptsetup luksOpoen /dev/backup/data_backup data_backup`
     - Enter passphrase
   - Verify/Search for new item
-    - `ls -la /dev/mapper | grep data_backup
+    - `ls -la /dev/mapper | grep data_backup`
   - Make a filesystem for it
     - `sudo mkfs.ext4 /dev/mapper/data_backup`
   - Mount the filesystem to location
@@ -1381,7 +1379,6 @@ unauthorized access, attack, theft, or data damage.
 - Transforms plaintext input into an indecipherable, fixed-length output
 - Involves a hash function that converts input in fixed-size string of bytes
 - Input varies but hashlength always fixed
--
 - Examples:
   - Password storage
     - Store hash of password
@@ -1531,14 +1528,138 @@ unauthorized access, attack, theft, or data damage.
 
 ## SELinux and AppArmor
 
-
-
-
-
-
-
-
 ## Firewalls
+
+- Program interface between private network and the internet
+- Firewall can accept, reject, or drop (no notification back) connections/requests
+- Types
+  - Packet Filter Firewall (1st Gen)
+    - Decisions based on rules that correspond to network packet attributes
+    - "Sateless firewalls" - Only instpect packet in isolation
+
+  - Stateful Firewalls (2nd Gen)
+    - Identifies past traffic related to a packet
+
+  - Application Layer Firewall (3rd Gen)
+    - Inspect the contents of application layer traffic
+    - Insect HTTP or FTP
+
+  - Stateless Firewall's ACL
+    - Allows or denies packets based on various factors
+
+### `iptables`
+
+- Applies to a certain context and consists of rule sets (chains)
+- `iptables [options] [-t table] [commands] {chain/rule specification}`
+- Has 5 default tables that can be activated in Linux kernel
+    1.*Filter table* - Default table. Typical packet filtering functionality.
+    2.*Nat table* - Implement Network Address Translation (NAT) rules. Public Network <-> Private Network
+    3.*Mangle table* - Alter the packets' TCP/IP header.
+    4.*Raw table* - Configure exceptions involved in connection tracking
+    5.*Security table* - Mark packets with SELinux security contexts
+- By default, rules are lost on reboot, however can save explicitly with these:
+  - CentOS/RHEL - `iptables-services` package
+  - Debian-based (ie. Ubuntu) - `iptables-persistent` package
+- Logging
+  - `iptables -N LOGCHN` - Creates a new log chain
+  - `iptables -I LOGCHN -j LOG` - Log all packets that reach this chain
+  - Events written to `/var/log/messages` or `/var/log/kern.log`
+
+### `ufw`
+
+Uncomplicated Firewall (UFW) tool
+
+- Makes iptables service easier to configure
+- Examples:
+  - `ufw enable` - Enable the firewall
+  - `ufw allow http/tcp` - Allow rule for HTTP
+  - `ufw logging`
+    - Turn on logging
+    - Adjust logging level: `ufw logging [level]` (ie. `low`, `medium`, `high`, `full`)
+    - Logs can typicall be found in `/var/log/syslog` and `/var/log/ufw.log`
+    - View with `sudo grep UFW /var/log/syslog`
+- `/etc/default/ufw` file
+  - Use to setup for more complicated firewalls
+  - Policy defaults and kernel module usage
+- `/etc/ufw/` directory
+  - Granular UFW configuration files
+
+### firewalld
+
+Tool to dynamically manage a firewall without requiring a restart
+
+- Uses zones and services
+- Firewall zones
+  - Rule sets that apply to network interfaces (ie. network interface card)
+  - `drop` - Zone with lowest level of trust
+- Ubuntu installation
+  - `sudo apt install firewalld`
+- `firewall-cmd` CLI tool
+  - Configure firewalld by querying, adding, modifying, and deleting
+      zones and services as desired
+- By default, there is always a `public` zone
+- `dmz` zone typically used for internet-facing services
+- Examples:
+  - `firewall-cmd --get-zones` - List available firewalld zones
+  - `firewall-cmd  --permanent --zone=public --add-service=ssh` - Add SSH protocol permanently
+  - `firewall-cmd --permanent --add-port=2222/tcp - Allow a specific port/protocol
+  - `firewall-cmd --set-default-zone=drop` - Set a default zone. Drop will drop all incoming traffic
+  - `firewall-cmd --zone=dmz -remove-port=21/tcp` - Remove FTP from the DMZ zone
+  - `firewall-cmd --reload` - Reload all firewalld rules
+
+### Netfilter
+
+- Handles packets that traverse a network interface
+- `nftables` designed as replacement for `iptables` and installed on Debian systems
+
+- IP Forwarding - Enables incoming traffic on one network interface to another
+- IP Sets
+  - Collection of IP and MAC addresses, network ranges, port numbers, and network interface names
+  - `ipset` - Create and modify IP sets
+
+- Trusted ports
+  - Port 0->1023
+  - Must have superuser privellages
+
+### Intrusion Prevention System (IPS)
+
+Monitors and evaluates a system for attack signs and blocks traffic that it determines malicious
+
+- Second layer of defence after firewall
+- `DenyHosts`
+  - Examine auth log files for issues
+  - Protects SSH servers from brute force password cracking attacks
+  - `/etc/denyhosts.conf` - primary config file
+- `fail2ban`
+  - Install: `sudo apt install fail2ban`
+  - Examine auth log files for issues
+  - Looks at any system service not just SSH
+  - `/etc/fail2ban/jail.conf`
+    - Primary configuration file
+    - Copy primary config file to `/etc/fail2ban/jail.local`
+      - `sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local`
+    - Or make custom `.conf` file within `/etc/fail2ban/jail.d/` directory
+    - Configuration options:
+      - `bantime` - How long a host is blocked from accessing a resource
+      - `maxretry` - Number of times a host can fail before being blocked
+      - `ignoreip` - Whitelist of accepted hosts
+      - `banaction` - What to do when banned
+        - Can work with `firewalld`: `banaction = firewallcmd-ipset`
+    - Configuration file example:
+
+      - ```makefile
+                [sshd]
+                enabled = true
+                port = 22
+                filter = sshd
+                logpath = /var/log/auth.log  # This path may differ based on your Linux distribution.
+                maxretry = 5                 # How long a host is blocked from accessing a resource
+                bantime = 600                # How long a host is blocked from accessing a resource
+            ```
+
+  - `fail2ban-client status`
+    - Check status of all fail2ban jails
+    - `fail2ban-client status [service]` - Check status of specific jail (ie. `sshd`)
 
 ## Logging Services
 
