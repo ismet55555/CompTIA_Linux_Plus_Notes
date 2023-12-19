@@ -1648,14 +1648,14 @@ Monitors and evaluates a system for attack signs and blocks traffic that it dete
     - Configuration file example:
 
       - ```makefile
-                [sshd]
-                enabled = true
-                port = 22
-                filter = sshd
-                logpath = /var/log/auth.log  # This path may differ based on your Linux distribution.
-                maxretry = 5                 # How long a host is blocked from accessing a resource
-                bantime = 600                # How long a host is blocked from accessing a resource
-            ```
+            [sshd]
+            enabled = true
+            port = 22
+            filter = sshd
+            logpath = /var/log/auth.log  # This path may differ based on your Linux distribution.
+            maxretry = 5                 # How long a host is blocked from accessing a resource
+            bantime = 600                # How long a host is blocked from accessing a resource
+        ```
 
   - `fail2ban-client status`
     - Check status of all fail2ban jails
@@ -1663,7 +1663,142 @@ Monitors and evaluates a system for attack signs and blocks traffic that it dete
 
 ## Logging Services
 
+Any action from OS events to user actions is logged on a Linux system
+
+- System logs
+  - System activity
+
+- Remote logging
+  - Centralized logging server that receives and processes syslog data
+
+- syslog-ng is next generation of syslogd
+
+- `journalctl`
+  - Enables viewing and querying of log files
+  - Examples:
+    - `journalctl -b -1` - Show all messages from last boot
+    - `journalctl -f` - Actively follow messages
+    - `journalctl -u <UNIT>` - Show messages from specific service unit (ie. sshd)
+    - `journalctl -n 10` - Only show 10 log lines
+  - `/etc/systemd/journald.conf` - Configuration file
+
+### `/var/log/` directory
+
+Holds all logging files
+
+- `/var/log/syslog` - All system events (Debian-based Linux)
+- `/var/log/auth.log` - Authentication messages (Debian-based Linux)
+- `/var/log/messages` - Red Hat/CentOS non-critical system event logs (RedHat/CentOS)
+- `/var/log/secure` - Authentication messages (RedHat/CentOS)
+- `/var/log/kern.log` - Linux kernel messages
+- `/var/log/[APPLICATION]` - Misc. Application (cron, firewalld, mailog, etc)
+
+### Log Rotation
+
+Creating new versions of a log file. Typically compressing older logs.
+
+- `logrotate`
+  - Perform automatic rotation of logs
+  - `/etc/logrotate.d/` directory - Log rotation behavior
+  - Example of log rotation config file for `/etc/logrotate.d/firewalld`
+
+    - ```txt
+
+        /var/log/firewalld {
+            weekly            <---- Time period
+            missingok
+            rotate 4          <---- Maximum number of files to keep
+            copytruncate
+            minsize 1M        <---- Minimum log file size
+        }
+        ```
+
+### `rsyslogd` Service
+
+- `/etc/rsyslog.conf`
+  - Configuration for rsyslogd
+  - May also be found in `/etc/rsyslog.d/50-default.conf`
+  - Two-columns
+    - Column 1 - Message sevirities for services (ie. info, warn, error, etc)
+    - Column 2 - What actions should be taken (ie. warn user, store in log file)
+
 ## Backup, Restore, and Verify Data
+
+- `tar`
+  - "Tape archiver"
+  - Creation of archives
+  - `tar -cvf <FILE> --diredctory=<PATH>` - Create gzipped archive from directory
+  - `tar -xvf <FILE>` - Extract compressed archive file
+
+- `dar`
+  - "Disk archiver:
+  - OFfers more backup and archiving functions
+  - `dar -R mydata -c full.bak` - Full backup
+  - `dar -R mydata -c diff1.back -A full.back` - Differential backup (compare to last full backup)
+
+- `cpio`
+  - Copies files in and out of archives
+  - `ls | cpio -o > dir_archive` - Copy all files in current directory to archive
+
+- `dd`
+  - "Disk duplicate" or "Disk destroyer"
+  - Copies and converts fiels to be transferred from one type of media to another
+  - Very powerful command
+  - Options:
+    - `if={filename}` - Data input to be read (can be device)
+    - `of={filename}` - Data output target to be written to (can be device)
+    - `bs={bytes}` - Total block size to read and write in bytes
+    - `count={count}` - Number of blocks to be written
+    - `status={level}` - Info to print to standard error
+  - Examples:
+    - `dd if={{path/to/file.iso}} of=/dev/{{usb_drive}}` - Make bootable USB from ISO
+    - `dd if=/dev/sda of=/home/ismet/backup/sda_backup.img` - Make drive backup to image file
+    - `dd if=/home/ismet/backup/sda_backup.img of=/dev/sda` - Restore a driave from image file
+
+- `mirrorvg`
+  - Copies all logical volumes in a specified logcial volume group for LVM
+  - Can also use `mklvcopy` or `lvcreate -m1`
+
+- Ensure good off-site backup in another location
+
+- `scp` - Copy data to or from a remote host over SSH
+
+- `rsync`
+  - Copy files locally and to remote systems
+  - Copies differences between files (differential backup)
+
+- `xz` make smaller archives than `gzip`, but `gzip` is faster
+
+## Hashing for Integrity Check
+
+- Hash all files in a directory
+  - `sha256sum my_dir/* > hashes.txt`
+  - Example content:
+
+    - ```txt
+        250c061c02be20d0a84d91e581ea537d2f24f79c58f1abfddc1bfc78bd4d7514  temp_site/astro.config.mjs
+        e94517a99de77a9ed069806a9a63511cb2b7ba945b751d3587134bb6a007e9ae  temp_site/LICENSE
+        064ef947df5eaf39e7d58148293aafc40c3090d4aa19bbe67a766eb1dcb0764a  temp_site/package.json
+        08d9f10cea00761f37fdd03a43ff1683f2a86c29d63f208992eed2c5818e16ed  temp_site/package-lock.json
+        4d0aa23639dfadfaea4228245915c8a9b399586d028d138c09a957adced4a9a7  temp_site/README.md
+        634d86e5196fa02e44122239efc8040b417881732d63c3f114c5f87f18c19a30  temp_site/sandbox.config.json
+        70e9b27728abe6fba4cd7a5eaa1a8ac07cc6d2986fcbda37377636e1218d35bf  temp_site/tsconfig.json
+        ```
+
+- Check hashes in the hashes are valid, and files did not change
+  - `sha256sum --check hashes.txt`
+  - Example output (one file changed):
+
+    - ```txt
+        temp_site/astro.config.mjs: OK
+        temp_site/LICENSE: FAILED
+        temp_site/package.json: OK
+        temp_site/package-lock.json: OK
+        temp_site/README.md: OK
+        temp_site/sandbox.config.json: OK
+        temp_site/tsconfig.json: OK
+        sha256sum: WARNING: 1 computed checksum did NOT match
+        ```
 
 ## Backup, Restore, Synchronize
 
