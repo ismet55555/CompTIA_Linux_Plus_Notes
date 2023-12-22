@@ -1738,7 +1738,10 @@ Creating new versions of a log file. Typically compressing older logs.
 
 - `cpio`
   - Copies files in and out of archives
+  - Doesn't compress items, but can be used with `gzip`
+  - Typically `tar` and `gzip` are more popular for archiving
   - `ls | cpio -o > dir_archive` - Copy all files in current directory to archive
+
 
 - `dd`
   - "Disk duplicate" or "Disk destroyer"
@@ -1805,3 +1808,23 @@ Creating new versions of a log file. Typically compressing older logs.
 ## Compressing Files
 
 ## Itengrity Checking
+
+
+# MISC
+
+## Cron
+
+```txt
+* * * * *  command to execute
+┬ ┬ ┬ ┬ ┬
+│ │ │ │ │
+│ │ │ │ └───── Day of the week (0 - 7, where 0 and 7 represent Sunday)
+│ │ │ └────────── Month (1 - 12)
+│ │ └─────────────── Day of the month (1 - 31)
+│ └──────────────────── Hour (0 - 23)
+└───────────────────────── Minute (0 - 59)
+```
+
+- `0 * * * * /path/to/script.sh` - Beginning of every hour
+- `45 4 1,15 * 5 command` - 4.45am, 1st and 15th of month, every month, only on Fridays
+- `*/10 **** command` - Every 10 minutes
